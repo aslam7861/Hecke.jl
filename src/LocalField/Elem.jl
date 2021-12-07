@@ -198,12 +198,12 @@ end
 
 function (K::LocalField{S, T})(a::Integer) where {S <: FieldElem, T <: LocalFieldParameter}
   el =  K(parent(defining_polynomial(K))(a))
-  return setprecision!(el, precision(K))
+  return el
 end
 
 function (K::LocalField{S, T})(a::Union{fmpz, fmpq}) where {S <: FieldElem, T <: LocalFieldParameter}
   el =  K(parent(defining_polynomial(K))(a))
-  return setprecision!(el, precision(K))
+  return el
 end
 
 function (K::LocalField{S, T})(a::U) where {U <: Union{padic, qadic}, S <: FieldElem, T <: LocalFieldParameter}
@@ -659,9 +659,9 @@ function _log_one_units(a::LocalFieldElem)
     d *= p
     el = el^p
     N = precision(el)
-    if isone(el)
-      num = el
-      den = d
+    if isone(el) || e*valuation(el-1) >= N  #stop if el in U_{L}^{>=N}
+    #  num = el
+     # den = d
       break
     end
     attempt = clog(d, 2) + div(N, numerator(e*valuation(el-1)))
@@ -672,7 +672,7 @@ function _log_one_units(a::LocalFieldElem)
       den = d
     end
   end
-  return _log_one_units_fast(num)//den
+  return _log_one_units_fast(num)*1//den
 end
 
 function _log_one_units_fast(a::LocalFieldElem)
